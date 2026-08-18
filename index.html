@@ -11,7 +11,8 @@
     <!-- PANEL LATERAL IZQUIERDO -->
     <aside class="sidebar">
       <div class="sidebar-header">
-        <h1>Nueva Orden</h1>
+        <h1 id="formTitle">Nueva Orden</h1>
+        <button type="button" id="btnHistorial" class="btn-historial">📋 Historial</button>
       </div>
 
       <form id="ordenForm" class="form">
@@ -103,9 +104,41 @@
             <label for="costoPiezas">Piezas ($)</label>
             <input type="number" id="costoPiezas" name="costo_piezas" step="0.01" min="0">
           </div>
-          <div class="total-display">
-            <span>TOTAL:</span>
-            <span id="totalOrden">$0.00</span>
+          <div class="form-group">
+            <label for="costoExtra">Extra ($)</label>
+            <input type="number" id="costoExtra" name="costo_extra" step="0.01" min="0">
+          </div>
+          <div class="subtotal-display">
+            <span>SUBTOTAL:</span>
+            <span id="subtotalOrden">$0.00</span>
+          </div>
+        </fieldset>
+
+        <!-- SECCIÓN: PAGOS -->
+        <fieldset>
+          <legend>Pagos</legend>
+          <div class="form-group">
+            <label for="adelanto">Adelanto Recibido ($)</label>
+            <input type="number" id="adelanto" name="adelanto" step="0.01" min="0">
+          </div>
+          <div class="restante-display">
+            <span>RESTANTE A PAGAR:</span>
+            <span id="restanteOrden">$0.00</span>
+          </div>
+        </fieldset>
+
+        <!-- SECCIÓN: GARANTÍA -->
+        <fieldset>
+          <legend>Garantía</legend>
+          <div class="form-group checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="garantia" name="garantia">
+              Este trabajo tiene garantía
+            </label>
+          </div>
+          <div class="form-group" id="garantiaFechaGroup" style="display:none;">
+            <label for="garantiaFecha">Válida hasta</label>
+            <input type="date" id="garantiaFecha" name="garantia_fecha">
           </div>
         </fieldset>
 
@@ -121,7 +154,7 @@
         <div class="form-actions">
           <button type="button" id="btnGuardar" class="btn btn-primary">💾 Guardar Orden</button>
           <button type="button" id="btnPDF" class="btn btn-success">📄 Generar PDF</button>
-          <button type="reset" class="btn btn-secondary">🔄 Limpiar Formulario</button>
+          <button type="button" id="btnNuevaOrden" class="btn btn-secondary">🆕 Nueva Orden</button>
         </div>
       </form>
     </aside>
@@ -136,6 +169,22 @@
         </div>
       </div>
     </main>
+  </div>
+
+  <!-- MODAL DE HISTORIAL -->
+  <div id="historialModal" class="modal-overlay" style="display:none;">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2>Historial de Órdenes</h2>
+        <button type="button" id="btnCerrarHistorial" class="btn-cerrar">✕</button>
+      </div>
+      <div class="modal-search">
+        <input type="text" id="buscarHistorial" placeholder="Buscar por cliente o número de orden...">
+      </div>
+      <div id="listaHistorial" class="modal-body">
+        <!-- Se llena dinámicamente -->
+      </div>
+    </div>
   </div>
 
   <script src="app.js"></script>
