@@ -66,13 +66,38 @@
               <option value="Otro">Otro</option>
             </select>
           </div>
-          <div class="form-group">
-            <label for="dispositivoMarca">Marca</label>
-            <input type="text" id="dispositivoMarca" name="dispositivo_marca" placeholder="ej: Samsung, Dell, Apple">
+          <div id="camposMarcaModelo">
+            <div class="form-group">
+              <label for="dispositivoMarca">Marca</label>
+              <input type="text" id="dispositivoMarca" name="dispositivo_marca" placeholder="ej: Samsung, Motorola, Apple">
+            </div>
+            <div class="form-group">
+              <label for="dispositivoModelo">Modelo</label>
+              <input type="text" id="dispositivoModelo" name="dispositivo_modelo" placeholder="ej: Galaxy A50, iPhone 11">
+            </div>
           </div>
-          <div class="form-group">
-            <label for="dispositivoModelo">Modelo</label>
-            <input type="text" id="dispositivoModelo" name="dispositivo_modelo" placeholder="ej: Galaxy A50, XPS 13">
+
+          <div id="camposComputadora" style="display:none;">
+            <div class="form-group">
+              <label for="dispositivoProcesador">Procesador</label>
+              <input type="text" id="dispositivoProcesador" name="dispositivo_procesador" placeholder="ej: Intel i5 10ma gen">
+            </div>
+            <div class="form-group">
+              <label for="dispositivoPlacaMadre">Placa Madre</label>
+              <input type="text" id="dispositivoPlacaMadre" name="dispositivo_placa_madre" placeholder="ej: Asus B460M">
+            </div>
+            <div class="form-group">
+              <label for="dispositivoRam">Memoria RAM</label>
+              <input type="text" id="dispositivoRam" name="dispositivo_ram" placeholder="ej: 8GB DDR4">
+            </div>
+            <div class="form-group">
+              <label for="dispositivoAlmacenamiento">Almacenamiento</label>
+              <input type="text" id="dispositivoAlmacenamiento" name="dispositivo_almacenamiento" placeholder="ej: SSD 480GB">
+            </div>
+            <div class="form-group">
+              <label for="dispositivoSO">Sistema Operativo</label>
+              <input type="text" id="dispositivoSO" name="dispositivo_so" placeholder="ej: Windows 11">
+            </div>
           </div>
         </fieldset>
 
@@ -124,6 +149,16 @@
           <div class="restante-display">
             <span>RESTANTE A PAGAR:</span>
             <span id="restanteOrden">$0.00</span>
+          </div>
+          <div class="form-group checkbox-group" style="margin-top:12px;">
+            <label class="checkbox-label">
+              <input type="checkbox" id="pagado" name="pagado">
+              Marcar como pagada (saldada en su totalidad)
+            </label>
+          </div>
+          <div class="form-group" id="fechaPagoGroup" style="display:none;">
+            <label for="fechaPago">Fecha de pago</label>
+            <input type="date" id="fechaPago" name="fecha_pago">
           </div>
         </fieldset>
 

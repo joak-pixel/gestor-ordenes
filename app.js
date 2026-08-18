@@ -13,6 +13,11 @@ function ordenVacia() {
     dispositivo_tipo: '',
     dispositivo_marca: '',
     dispositivo_modelo: '',
+    dispositivo_procesador: '',
+    dispositivo_placa_madre: '',
+    dispositivo_ram: '',
+    dispositivo_almacenamiento: '',
+    dispositivo_so: '',
     problema: '',
     trabajo_realizado: '',
     componentes: '',
@@ -22,6 +27,8 @@ function ordenVacia() {
     adelanto: 0,
     garantia: false,
     garantia_fecha: '',
+    pagado: false,
+    fecha_pago: '',
     observaciones: ''
   };
 }
@@ -36,6 +43,11 @@ const previewArea = document.getElementById('previewPDF');
 const formTitle = document.getElementById('formTitle');
 const garantiaCheckbox = document.getElementById('garantia');
 const garantiaFechaGroup = document.getElementById('garantiaFechaGroup');
+const pagadoCheckbox = document.getElementById('pagado');
+const fechaPagoGroup = document.getElementById('fechaPagoGroup');
+const dispositivoTipoSelect = document.getElementById('dispositivoTipo');
+const camposMarcaModelo = document.getElementById('camposMarcaModelo');
+const camposComputadora = document.getElementById('camposComputadora');
 
 // Historial
 const btnHistorial = document.getElementById('btnHistorial');
@@ -66,6 +78,36 @@ document.addEventListener('DOMContentLoaded', () => {
       ordenActual.garantia_fecha = '';
     }
     ordenActual.garantia = garantiaCheckbox.checked;
+    actualizarPreview();
+  });
+
+  // Pagado: mostrar/ocultar fecha de pago
+  pagadoCheckbox.addEventListener('change', () => {
+    if (pagadoCheckbox.checked) {
+      fechaPagoGroup.style.display = 'flex';
+      if (!document.getElementById('fechaPago').value) {
+        document.getElementById('fechaPago').valueAsDate = new Date();
+        ordenActual.fecha_pago = document.getElementById('fechaPago').value;
+      }
+    } else {
+      fechaPagoGroup.style.display = 'none';
+      document.getElementById('fechaPago').value = '';
+      ordenActual.fecha_pago = '';
+    }
+    ordenActual.pagado = pagadoCheckbox.checked;
+    actualizarPreview();
+    actualizarTotal();
+  });
+
+  // Tipo de dispositivo: alternar entre Marca/Modelo y campos de Computadora
+  dispositivoTipoSelect.addEventListener('change', () => {
+    if (dispositivoTipoSelect.value === 'Computadora') {
+      camposMarcaModelo.style.display = 'none';
+      camposComputadora.style.display = 'block';
+    } else {
+      camposMarcaModelo.style.display = 'block';
+      camposComputadora.style.display = 'none';
+    }
     actualizarPreview();
   });
 
@@ -128,14 +170,14 @@ function actualizarTotal() {
   document.getElementById('restanteOrden').textContent = `$${restante.toFixed(2)}`;
 
   const restanteElement = document.getElementById('restanteOrden');
-  if (restante > 0) {
-    restanteElement.parentElement.style.background = '#f8d7da';
-    restanteElement.parentElement.style.borderLeftColor = '#f5c6cb';
-    restanteElement.parentElement.style.color = '#721c24';
-  } else {
+  if (ordenActual.pagado || restante <= 0) {
     restanteElement.parentElement.style.background = '#d4edda';
     restanteElement.parentElement.style.borderLeftColor = '#28a745';
     restanteElement.parentElement.style.color = '#155724';
+  } else {
+    restanteElement.parentElement.style.background = '#f8d7da';
+    restanteElement.parentElement.style.borderLeftColor = '#f5c6cb';
+    restanteElement.parentElement.style.color = '#721c24';
   }
 }
 
@@ -194,18 +236,30 @@ function actualizarPreview() {
           <div class="preview-label">Tipo:</div>
           <div class="preview-value">${ordenActual.dispositivo_tipo}</div>
         </div>
-        ${ordenActual.dispositivo_marca ? `
-          <div class="preview-row">
-            <div class="preview-label">Marca:</div>
-            <div class="preview-value">${ordenActual.dispositivo_marca}</div>
-          </div>
-        ` : ''}
-        ${ordenActual.dispositivo_modelo ? `
-          <div class="preview-row">
-            <div class="preview-label">Modelo:</div>
-            <div class="preview-value">${ordenActual.dispositivo_modelo}</div>
-          </div>
-        ` : ''}
+        ${ordenActual.dispositivo_tipo === 'Computadora' ? `
+          ${ordenActual.dispositivo_procesador ? `
+            <div class="preview-row"><div class="preview-label">Procesador:</div><div class="preview-value">${ordenActual.dispositivo_procesador}</div></div>
+          ` : ''}
+          ${ordenActual.dispositivo_placa_madre ? `
+            <div class="preview-row"><div class="preview-label">Placa Madre:</div><div class="preview-value">${ordenActual.dispositivo_placa_madre}</div></div>
+          ` : ''}
+          ${ordenActual.dispositivo_ram ? `
+            <div class="preview-row"><div class="preview-label">Memoria RAM:</div><div class="preview-value">${ordenActual.dispositivo_ram}</div></div>
+          ` : ''}
+          ${ordenActual.dispositivo_almacenamiento ? `
+            <div class="preview-row"><div class="preview-label">Almacenamiento:</div><div class="preview-value">${ordenActual.dispositivo_almacenamiento}</div></div>
+          ` : ''}
+          ${ordenActual.dispositivo_so ? `
+            <div class="preview-row"><div class="preview-label">Sistema Operativo:</div><div class="preview-value">${ordenActual.dispositivo_so}</div></div>
+          ` : ''}
+        ` : `
+          ${ordenActual.dispositivo_marca ? `
+            <div class="preview-row"><div class="preview-label">Marca:</div><div class="preview-value">${ordenActual.dispositivo_marca}</div></div>
+          ` : ''}
+          ${ordenActual.dispositivo_modelo ? `
+            <div class="preview-row"><div class="preview-label">Modelo:</div><div class="preview-value">${ordenActual.dispositivo_modelo}</div></div>
+          ` : ''}
+        `}
       </div>
     ` : ''}
 
@@ -255,10 +309,16 @@ function actualizarPreview() {
             <div class="preview-label">Adelanto:</div>
             <div class="preview-value">$${parseFloat(ordenActual.adelanto || 0).toFixed(2)}</div>
           </div>
+        ` : ''}
+        ${ordenActual.pagado ? `
+          <div class="preview-total" style="background:#d4edda;color:#155724;">
+            ✅ PAGADO EN SU TOTALIDAD ${ordenActual.fecha_pago ? '· ' + formatearFecha(ordenActual.fecha_pago) : ''}
+          </div>
+        ` : `
           <div class="preview-total">
             RESTANTE A PAGAR: $${calcularRestante().toFixed(2)}
           </div>
-        ` : ''}
+        `}
       </div>
     ` : ''}
 
@@ -331,6 +391,9 @@ function empezarNuevaOrden() {
   document.getElementById('fecha').valueAsDate = new Date();
   ordenActual.fecha = new Date().toISOString().split('T')[0];
   garantiaFechaGroup.style.display = 'none';
+  fechaPagoGroup.style.display = 'none';
+  camposMarcaModelo.style.display = 'block';
+  camposComputadora.style.display = 'none';
   formTitle.textContent = 'Nueva Orden';
   btnGuardar.textContent = '💾 Guardar Orden';
   btnGuardar.classList.remove('editando');
@@ -369,8 +432,9 @@ function renderHistorial(filtro) {
   listaHistorial.innerHTML = items.map(o => {
     const subtotal = parseFloat(o.costo_mano_obra || 0) + parseFloat(o.costo_piezas || 0) + parseFloat(o.costo_extra || 0);
     const restante = subtotal - parseFloat(o.adelanto || 0);
-    const badgeClass = restante > 0 ? 'pendiente' : 'pagado';
-    const badgeTexto = restante > 0 ? `Debe $${restante.toFixed(2)}` : 'Pagado';
+    const estaPagado = o.pagado || restante <= 0;
+    const badgeClass = estaPagado ? 'pagado' : 'pendiente';
+    const badgeTexto = estaPagado ? 'Pagado' : `Debe $${restante.toFixed(2)}`;
 
     return `
       <div class="historial-item">
@@ -415,6 +479,15 @@ function cargarOrdenEnFormulario(numeroOrden) {
   });
 
   garantiaFechaGroup.style.display = ordenActual.garantia ? 'flex' : 'none';
+  fechaPagoGroup.style.display = ordenActual.pagado ? 'flex' : 'none';
+
+  if (ordenActual.dispositivo_tipo === 'Computadora') {
+    camposMarcaModelo.style.display = 'none';
+    camposComputadora.style.display = 'block';
+  } else {
+    camposMarcaModelo.style.display = 'block';
+    camposComputadora.style.display = 'none';
+  }
 
   formTitle.textContent = `Editando: ${orden.numero_orden}`;
   btnGuardar.textContent = '💾 Actualizar Orden';

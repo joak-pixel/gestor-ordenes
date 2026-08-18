@@ -140,8 +140,16 @@ ipcMain.handle('generate-pdf', async (event, datos) => {
   doc.fontSize(12).font('Helvetica-Bold').text('DETALLES DEL DISPOSITIVO');
   doc.fontSize(10).font('Helvetica');
   doc.text(`Tipo: ${datos.dispositivo_tipo}`);
-  doc.text(`Marca: ${datos.dispositivo_marca}`);
-  doc.text(`Modelo: ${datos.dispositivo_modelo}`);
+  if (datos.dispositivo_tipo === 'Computadora') {
+    if (datos.dispositivo_procesador) doc.text(`Procesador: ${datos.dispositivo_procesador}`);
+    if (datos.dispositivo_placa_madre) doc.text(`Placa Madre: ${datos.dispositivo_placa_madre}`);
+    if (datos.dispositivo_ram) doc.text(`Memoria RAM: ${datos.dispositivo_ram}`);
+    if (datos.dispositivo_almacenamiento) doc.text(`Almacenamiento: ${datos.dispositivo_almacenamiento}`);
+    if (datos.dispositivo_so) doc.text(`Sistema Operativo: ${datos.dispositivo_so}`);
+  } else {
+    if (datos.dispositivo_marca) doc.text(`Marca: ${datos.dispositivo_marca}`);
+    if (datos.dispositivo_modelo) doc.text(`Modelo: ${datos.dispositivo_modelo}`);
+  }
 
   doc.moveDown(1);
   doc.fontSize(12).font('Helvetica-Bold').text('PROBLEMA REPORTADO');
@@ -176,6 +184,11 @@ ipcMain.handle('generate-pdf', async (event, datos) => {
   if (datos.adelanto) {
     doc.fontSize(10).font('Helvetica');
     doc.text(`Adelanto recibido: $${parseFloat(datos.adelanto || 0).toFixed(2)}`);
+  }
+
+  if (datos.pagado) {
+    doc.fontSize(11).font('Helvetica-Bold').text(`PAGADO EN SU TOTALIDAD${datos.fecha_pago ? ' - Fecha: ' + datos.fecha_pago : ''}`);
+  } else {
     const restante = (parseFloat(subtotal) - parseFloat(datos.adelanto || 0)).toFixed(2);
     doc.fontSize(11).font('Helvetica-Bold').text(`RESTANTE A PAGAR: $${restante}`);
   }
