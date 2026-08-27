@@ -156,9 +156,6 @@ npm rebuild
 - Intenta generar de nuevo
 
 ## Próximas mejoras
-
-- [ ] Editar órdenes existentes
-- [ ] Historial de órdenes
 - [ ] Envío de PDF por email automático
 - [ ] Plantillas personalizables
 - [ ] Exportar datos a Excel
@@ -171,3 +168,5 @@ MIT - Libre para uso personal y comercial
 ---
 
 **¿Preguntas o sugerencias?** ¡Dímelo y lo agregamos!
+
+## Vibecoding <3
