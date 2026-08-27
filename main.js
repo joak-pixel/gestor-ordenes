@@ -2,6 +2,14 @@ const { app, BrowserWindow, Menu, ipcMain } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const PDFDocument = require('pdfkit');
+function formatearMoneda(numero) {
+  const num = parseFloat(numero || 0);
+  const tieneDecimales = num % 1 !== 0;
+  return '$' + num.toLocaleString('es-AR', {
+    minimumFractionDigits: tieneDecimales ? 2 : 0,
+    maximumFractionDigits: 2
+  });
+}
 
 let mainWindow;
 
@@ -58,6 +66,12 @@ function createMenu() {
         { label: 'Cortar', accelerator: 'CmdOrCtrl+X', role: 'cut' },
         { label: 'Copiar', accelerator: 'CmdOrCtrl+C', role: 'copy' },
         { label: 'Pegar', accelerator: 'CmdOrCtrl+V', role: 'paste' }
+      ]
+    },
+    {
+      label: 'Ver',
+      submenu: [
+        { label: 'Herramientas de Desarrollador', accelerator: 'CmdOrCtrl+Shift+I', role: 'toggleDevTools' }
       ]
     }
   ];
@@ -171,27 +185,26 @@ ipcMain.handle('generate-pdf', async (event, datos) => {
   doc.moveDown(1);
   doc.fontSize(12).font('Helvetica-Bold').text('COSTOS Y PAGOS');
   doc.fontSize(10).font('Helvetica');
-  doc.text(`Mano de obra: $${parseFloat(datos.costo_mano_obra || 0).toFixed(2)}`);
-  doc.text(`Piezas: $${parseFloat(datos.costo_piezas || 0).toFixed(2)}`);
-
+ doc.text(`Mano de obra: ${formatearMoneda(datos.costo_mano_obra)}`);
+doc.text(`Piezas: ${formatearMoneda(datos.costo_piezas)}`);
   if (datos.costo_extra) {
-    doc.text(`Extra: $${parseFloat(datos.costo_extra || 0).toFixed(2)}`);
-  }
+  doc.text(`Extra: ${formatearMoneda(datos.costo_extra)}`);
+}
 
-  const subtotal = (parseFloat(datos.costo_mano_obra || 0) + parseFloat(datos.costo_piezas || 0) + parseFloat(datos.costo_extra || 0)).toFixed(2);
-  doc.fontSize(11).font('Helvetica-Bold').text(`SUBTOTAL: $${subtotal}`);
+ const subtotal = parseFloat(datos.costo_mano_obra || 0) + parseFloat(datos.costo_piezas || 0) + parseFloat(datos.costo_extra || 0);
+doc.fontSize(11).font('Helvetica-Bold').text(`SUBTOTAL: ${formatearMoneda(subtotal)}`);
 
-  if (datos.adelanto) {
-    doc.fontSize(10).font('Helvetica');
-    doc.text(`Adelanto recibido: $${parseFloat(datos.adelanto || 0).toFixed(2)}`);
-  }
+ if (datos.adelanto) {
+  doc.fontSize(10).font('Helvetica');
+  doc.text(`Adelanto recibido: ${formatearMoneda(datos.adelanto)}`);
+}
 
-  if (datos.pagado) {
-    doc.fontSize(11).font('Helvetica-Bold').text(`PAGADO EN SU TOTALIDAD${datos.fecha_pago ? ' - Fecha: ' + datos.fecha_pago : ''}`);
-  } else {
-    const restante = (parseFloat(subtotal) - parseFloat(datos.adelanto || 0)).toFixed(2);
-    doc.fontSize(11).font('Helvetica-Bold').text(`RESTANTE A PAGAR: $${restante}`);
-  }
+if (datos.pagado) {
+  doc.fontSize(11).font('Helvetica-Bold').text(`PAGADO EN SU TOTALIDAD${datos.fecha_pago ? ' - Fecha: ' + datos.fecha_pago : ''}`);
+} else {
+  const restante = subtotal - parseFloat(datos.adelanto || 0);
+  doc.fontSize(11).font('Helvetica-Bold').text(`RESTANTE A PAGAR: ${formatearMoneda(restante)}`);
+}
 
   if (datos.garantia) {
     doc.moveDown(1);

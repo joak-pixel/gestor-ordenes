@@ -166,8 +166,8 @@ function actualizarTotal() {
   const subtotal = calcularSubtotal();
   const restante = calcularRestante();
 
-  document.getElementById('subtotalOrden').textContent = `$${subtotal.toFixed(2)}`;
-  document.getElementById('restanteOrden').textContent = `$${restante.toFixed(2)}`;
+  document.getElementById('subtotalOrden').textContent = formatearMoneda(subtotal);
+  document.getElementById('restanteOrden').textContent = formatearMoneda(restante);
 
   const restanteElement = document.getElementById('restanteOrden');
   if (ordenActual.pagado || restante <= 0) {
@@ -185,6 +185,14 @@ function formatearFecha(fechaStr) {
   if (!fechaStr) return '';
   const fecha = new Date(fechaStr + 'T00:00:00');
   return fecha.toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+function formatearMoneda(numero) {
+  const num = parseFloat(numero || 0);
+  const tieneDecimales = num % 1 !== 0;
+  return '$' + num.toLocaleString('es-AR', {
+    minimumFractionDigits: tieneDecimales ? 2 : 0,
+    maximumFractionDigits: 2
+  });
 }
 
 function actualizarPreview() {
@@ -289,25 +297,25 @@ function actualizarPreview() {
         <h2>Costos y Pagos</h2>
         <div class="preview-row">
           <div class="preview-label">Mano de obra:</div>
-          <div class="preview-value">$${parseFloat(ordenActual.costo_mano_obra || 0).toFixed(2)}</div>
+          <div class="preview-value">${formatearMoneda(ordenActual.costo_mano_obra)}</div>
         </div>
         <div class="preview-row">
           <div class="preview-label">Piezas:</div>
-          <div class="preview-value">$${parseFloat(ordenActual.costo_piezas || 0).toFixed(2)}</div>
+          <div class="preview-value">${formatearMoneda(ordenActual.costo_piezas)}</div>
         </div>
         ${ordenActual.costo_extra ? `
           <div class="preview-row">
             <div class="preview-label">Extra:</div>
-            <div class="preview-value">$${parseFloat(ordenActual.costo_extra || 0).toFixed(2)}</div>
+            <div class="preview-value">${formatearMoneda(ordenActual.costo_extra)}</div>
           </div>
         ` : ''}
         <div class="preview-total">
-          SUBTOTAL: $${calcularSubtotal().toFixed(2)}
+          SUBTOTAL: ${formatearMoneda(calcularSubtotal())}
         </div>
         ${ordenActual.adelanto ? `
           <div class="preview-row">
             <div class="preview-label">Adelanto:</div>
-            <div class="preview-value">$${parseFloat(ordenActual.adelanto || 0).toFixed(2)}</div>
+            <div class="preview-value">${formatearMoneda(ordenActual.adelanto)}</div>
           </div>
         ` : ''}
         ${ordenActual.pagado ? `
@@ -316,7 +324,7 @@ function actualizarPreview() {
           </div>
         ` : `
           <div class="preview-total">
-            RESTANTE A PAGAR: $${calcularRestante().toFixed(2)}
+            RESTANTE A PAGAR: ${formatearMoneda(calcularRestante())}
           </div>
         `}
       </div>
@@ -342,11 +350,38 @@ function actualizarPreview() {
 
   previewArea.innerHTML = html;
 }
+function enfocarPrimerCampoInvalido() {
+  const invalido = form.querySelector(':invalid');
+  if (invalido) {
+    invalido.focus();
+    invalido.classList.add('campo-invalido');
+    setTimeout(() => invalido.classList.remove('campo-invalido'), 2500);
+  }
+}
+
+function avisarCamposFaltantes() {
+  const existente = document.getElementById('toastAviso');
+  if (existente) existente.remove();
+
+  const toast = document.createElement('div');
+  toast.id = 'toastAviso';
+  toast.className = 'toast-aviso';
+  toast.textContent = '⚠️ Por favor completá todos los campos requeridos';
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+
+  const invalido = form.querySelector(':invalid');
+  if (invalido) {
+    invalido.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    invalido.focus();
+    invalido.classList.add('campo-invalido');
+    setTimeout(() => invalido.classList.remove('campo-invalido'), 3000);
+  }
+}
 
 async function guardarOrden() {
   if (!form.checkValidity()) {
-    alert('Por favor completa todos los campos requeridos');
-    form.reportValidity();
+    avisarCamposFaltantes();
     return;
   }
 
@@ -366,8 +401,7 @@ async function guardarOrden() {
 
 async function generarPDF() {
   if (!form.checkValidity()) {
-    alert('Por favor completa todos los campos requeridos');
-    form.reportValidity();
+    avisarCamposFaltantes();
     return;
   }
 
@@ -388,6 +422,7 @@ function empezarNuevaOrden() {
   editandoOrden = false;
   ordenActual = ordenVacia();
   form.reset();
+  document.querySelector('.sidebar').scrollTop = 0;
   document.getElementById('fecha').valueAsDate = new Date();
   ordenActual.fecha = new Date().toISOString().split('T')[0];
   garantiaFechaGroup.style.display = 'none';
@@ -434,7 +469,7 @@ function renderHistorial(filtro) {
     const restante = subtotal - parseFloat(o.adelanto || 0);
     const estaPagado = o.pagado || restante <= 0;
     const badgeClass = estaPagado ? 'pagado' : 'pendiente';
-    const badgeTexto = estaPagado ? 'Pagado' : `Debe $${restante.toFixed(2)}`;
+    const badgeTexto = estaPagado ? 'Pagado' : `Debe ${formatearMoneda(restante)}`;
 
     return `
       <div class="historial-item">

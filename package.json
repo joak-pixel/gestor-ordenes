@@ -1,14 +1,30 @@
-﻿{
+{
   "name": "gestor-ordenes-servicio",
   "version": "1.0.0",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "dist": "electron-builder"
   },
   "dependencies": {
     "pdfkit": "0.13.0"
   },
   "devDependencies": {
-    "electron": "29.0.0"
+    "electron": "^29.4.6",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "com.lopz.gestordeordenes",
+    "productName": "Gestor de Ordenes",
+    "win": {
+      "target": "nsis"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "index.html",
+      "styles.css",
+      "app.js"
+    ]
   }
 }
