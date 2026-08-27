@@ -131,8 +131,13 @@ ipcMain.handle('eliminar-orden', (event, numeroOrden) => {
 ipcMain.handle('generate-pdf', async (event, datos) => {
   const doc = new PDFDocument({ size: 'A4', margin: 40 });
 
+  const carpetaOrdenes = path.join(app.getPath('documents'), 'Ordenes de Servicio');
+  if (!fs.existsSync(carpetaOrdenes)) {
+    fs.mkdirSync(carpetaOrdenes, { recursive: true });
+  }
+
   const fileName = `Orden_${datos.numero_orden}.pdf`;
-  const filePath = path.join(app.getPath('downloads'), fileName);
+  const filePath = path.join(carpetaOrdenes, fileName);
 
   const stream = fs.createWriteStream(filePath);
   doc.pipe(stream);
